@@ -11,25 +11,28 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $projectId = $request->get('project_id');
-        $tasks = Task::where('project_id', $projectId)->orderBy('priority')->get();
+        $tasks = Task::all();
         $projects = Project::all();
 
         return view('tasks.index', compact('tasks', 'projects', 'projectId'));
     }
+
     public function store(Request $request)
     {
        try {
         $request->validate([
             'name' => 'required|string|max:255',
-            'projectId' => 'nullable|exists:projects, id',
+            'project_id' => 'required|numeric|integer',
         ]);
 
-        $priority = Task::where('projectId', $request->project_id)->max('priority') + 1;
+        $priority = Task::where('project_id', $request->project_id)->max('priority') ?? 0;
+        $priority += 1;
+
 
         Task::create([
             'name' => $request->name,
             'priority' => $priority,
-            'projectId' => $request->project_id
+            'project_id' => $request->project_id
         ]);
 
         return redirect()->back()->with('Success', 'Task was created successfully!');
@@ -42,12 +45,12 @@ class TaskController extends Controller
     {
     try {
         $validatedData = $request->validate([
-            'name' => 'required'|'string'|'max:255',
+            'name' => 'required|string|max:255',
         ]);
 
         $task = Task::findOrFail($id);
 
-        $task->update($validatedData['name']);
+        $task->update($validatedData);
 
         return redirect()->back()->with('Success', 'Task was updated successfully');
     } catch (\Exception $e) {

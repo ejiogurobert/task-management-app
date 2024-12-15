@@ -55,7 +55,7 @@
                     <!-- Edit Task -->
                     <form action="{{ route('tasks.update', $task->id) }}" method="POST" style="display:inline;">
                         @csrf
-                        @method('PUT')
+                        @method('PATCH')
                         <input type="text" name="name" value="{{ $task->name }}" required>
                         <button type="submit" class="btn btn-sm btn-success">Update</button>
                     </form>
